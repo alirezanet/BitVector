@@ -34,7 +34,7 @@ While the built-in BitArray class in .NET offers basic bit manipulation capabili
 Get started with BitVector by installing it from NuGet using the following command:
 
 ``` shell
-Install-Package BitVectorSharp
+Install-Package BitVector
 ```
 
 ## License
