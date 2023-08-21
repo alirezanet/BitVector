@@ -1,4 +1,4 @@
-# BitVector
+# BitVector (UNDER DEVELOPMENT)
 
 The BitVector struct provides a lightweight, memory-efficient, and high-performance solution for working with individual bits within your .NET applications. With its versatile API and optimized bitwise operations, the BitVector struct is the ideal choice for scenarios where memory conservation and efficient bit manipulation are essential.
 
