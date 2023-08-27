@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitVectorLib", "src\BitVectorLib\BitVectorLib.csproj", "{5C9AF5D1-0B89-47AB-B720-B061F2072A79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitVectorLibTests", "Tests\BitVectorLibTests\BitVectorLibTests.csproj", "{A2BA6D60-E82E-470A-A30A-AB9202DE7E7D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitVectorLibTests", "test\BitVectorLibTests\BitVectorLibTests.csproj", "{A2BA6D60-E82E-470A-A30A-AB9202DE7E7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
