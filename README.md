@@ -4,11 +4,9 @@ The BitVector struct provides a lightweight, memory-efficient, and high-performa
 
 ## Key Features
 
-Efficient Bit Storage: The BitVector struct employs a memory-efficient approach by utilizing a single bit per item. This efficient storage mechanism ensures minimal memory usage, making it perfect for scenarios dealing with large datasets.
+Efficient Bit Storage: The BitVector struct employs a memory-efficient approach by utilizing a single bit per item. This efficient storage mechanism ensures minimal memory usage, making it perfect for scenarios where memory allocation is important.
 
 Immutable Design: Every operation on the BitVector struct generates a new instance, ensuring the immutability of the data. This design prevents unintentional modifications and enhances data integrity.
-
-Broad Bit Range Support: The BitVector struct supports a wide range of bit lengths, accommodating requirements ranging from small to very large bit sequences.
 
 ## Operations
 
