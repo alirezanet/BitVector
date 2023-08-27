@@ -20,7 +20,7 @@ Simple Usage
 BitVector bits = new BitVector(16); // Initialize with 16 bits
 bits = bits.SetAll(true); // Set all bits to true
 BitVector result = bits | new BitVector(16); // Perform OR operation
-string binaryString = bits.ToBinaryString(); // Convert to binary string
+string binaryString = bits.ToString(); // Convert to binary string (e.g 1111111111111111)
 ```
 
 ## A Step Beyond BitArray
