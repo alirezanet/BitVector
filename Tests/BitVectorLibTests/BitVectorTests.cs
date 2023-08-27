@@ -72,4 +72,34 @@ public class BitVectorTests
             Assert.True(bv.GetBit(i));
         }
     }
+
+    [Theory]
+    [InlineData("0")]
+    [InlineData("00")]
+    [InlineData("01")]
+    [InlineData("11")]
+    [InlineData("100")]
+    [InlineData("00001010100")]
+    [InlineData("11001010100")]
+    public void New_InitializeNewBitVectorUsingBinaryString(string binaryString)
+    {
+        // Act
+        var bv = new BitVector(binaryString);
+
+        // Assert
+        var expectedLength = binaryString.Length;
+        Assert.Equal(expectedLength, bv.BitLength);
+
+        var expectedBufferLength = (expectedLength + 7) / 8;
+        Assert.Equal(expectedBufferLength, bv.BufferLength);
+
+        var expectedBinary = binaryString.PadLeft(expectedBufferLength * 8, '0');
+        Assert.Equal(expectedBinary, bv.ToString());
+
+        for (var i = 0; i < expectedLength; i++)
+        {
+            var bitIndexFromRight = expectedLength - 1 - i;
+            Assert.Equal(binaryString[i] == '1', bv.GetBit(bitIndexFromRight));
+        }
+    }
 }
