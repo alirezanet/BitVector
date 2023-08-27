@@ -1,4 +1,6 @@
-﻿namespace BitVectorLib;
+﻿using System.Collections;
+
+namespace BitVectorLib;
 
 /// <summary>
 ///     The <c>BitVector</c> struct provides a memory-efficient and high-performance solution
@@ -7,56 +9,43 @@
 ///     This struct is particularly suitable for scenarios where memory conservation and
 ///     efficient bit manipulation are crucial.
 /// </summary>
-public readonly struct BitVector
+public readonly struct BitVector : IEnumerable<bool>
 {
     private readonly byte[] _bitBuffer;
-    public readonly long Length;
+    public readonly long BitLength;
     public readonly int BufferLength;
 
-
-    public BitVector(long lenght)
+    public BitVector(long bitLength)
     {
         checked
         {
-            BufferLength = (int)((lenght + 7) / 8);
-            if (BufferLength == 0) BufferLength++;
+            BufferLength = (int)((bitLength + 7) / 8);
             _bitBuffer = new byte[BufferLength];
-            Length = lenght;
+            BitLength = bitLength;
         }
     }
 
-    public BitVector(byte[] bitBuffer, long lenght)
+    public BitVector(byte[] bitBuffer, long bitLenght)
     {
         _bitBuffer = bitBuffer;
-        Length = lenght;
+        BitLength = bitLenght;
         BufferLength = bitBuffer.Length;
     }
 
-    public BitVector(long lenght, bool defaultValue = false)
+    public BitVector(long bitLength, bool defaultValue = false)
     {
-        checked
-        {
-            BufferLength = (int)((lenght + 7) / 8);
-            if (BufferLength == 0) BufferLength++;
-            _bitBuffer = new byte[BufferLength];
-            Length = lenght;
-        }
+        this = new BitVector(bitLength);
         InternalSetAll(defaultValue);
     }
 
-    public BitVector(long length, params long[] autoSetIndexes)
+    public BitVector(long bitLength, params long[] nonZeroIndexes)
     {
-        checked
-        {
-            BufferLength = (int)((length + 7) / 8);
-            _bitBuffer = new byte[BufferLength];
-            Length = length;
-        }
+        this = new BitVector(bitLength);
 
-        foreach (var bitIndex in autoSetIndexes)
+        foreach (var bitIndex in nonZeroIndexes)
         {
-            if (bitIndex >= Length)
-                throw new ArgumentOutOfRangeException(nameof(autoSetIndexes), "Bit index is out of range.");
+            if (bitIndex >= BitLength)
+                throw new ArgumentOutOfRangeException(nameof(nonZeroIndexes), "Bit index is out of range.");
 
             var byteIndex = bitIndex / 8;
             var bitOffset = (int)bitIndex % 8;
@@ -67,10 +56,25 @@ public readonly struct BitVector
             _bitBuffer[byteIndex] |= mask;
         }
     }
+    
+    public BitVectorEnumerator GetEnumerator()
+    {
+        return new BitVectorEnumerator(this);
+    }
+
+    IEnumerator<bool> IEnumerable<bool>.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 
     public BitVector SetAll(bool value)
     {
-        return new BitVector(Length, value);
+        return new BitVector(BitLength, value);
     }
 
     public byte[] ToByteArray()
@@ -83,11 +87,7 @@ public readonly struct BitVector
         _bitBuffer.CopyTo(buffer, index);
     }
 
-    public string ToBinaryString()
-    {
-        return string.Join("", _bitBuffer.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
-    }
-
+    
     public BitVector Set(bool value, params long[] bitIndexes)
     {
         var newBitBuffer = new byte[BufferLength];
@@ -95,7 +95,7 @@ public readonly struct BitVector
 
         foreach (var bitIndex in bitIndexes)
         {
-            if (bitIndex >= Length)
+            if (bitIndex >= BitLength)
                 throw new ArgumentOutOfRangeException(nameof(bitIndexes), "Bit index is out of range.");
 
             var byteIndex = bitIndex / 8;
@@ -108,7 +108,7 @@ public readonly struct BitVector
             newBitBuffer[byteIndex] |= newValue;
         }
 
-        return new BitVector(newBitBuffer, Length);
+        return new BitVector(newBitBuffer, BitLength);
     }
 
     private static byte GetValue(bool value)
@@ -123,7 +123,7 @@ public readonly struct BitVector
         {
             if (i == 0)
             {
-                var remainingBits = (int)(Length % 8);
+                var remainingBits = (int)(BitLength % 8);
                 if (remainingBits == 0)
                     _bitBuffer[i] = byteValue;
                 else
@@ -206,7 +206,7 @@ public readonly struct BitVector
                 }
             }
 
-        return new BitVector(newBitBuffer, Length);
+        return new BitVector(newBitBuffer, BitLength);
     }
 
     public BitVector RightShift(int count)
@@ -228,30 +228,42 @@ public readonly struct BitVector
                 }
             }
 
-        return new BitVector(newBitBuffer, Length);
+        return new BitVector(newBitBuffer, BitLength);
     }
 
     public long CountSetBits()
     {
-        long count = 0;
-        foreach (var byteValue in _bitBuffer) count += CountSetBitsInByte(byteValue);
-        return count;
+        return _bitBuffer.Aggregate<byte, long>(0, (current, byteValue) => current + CountSetBitsInByte(byteValue));
     }
 
     public int FirstSetBitIndex()
     {
-        for (var i = 0; i < BufferLength * 8; i++)
-            if (GetBit(i))
-                return i;
+        for (var i = 0; i < BufferLength; i++)
+        {
+            if (_bitBuffer[i] == 0) continue;
+            
+            var bitIndex = i * 8;
+            var byteValue = _bitBuffer[i];
+            while (byteValue > 0)
+            {
+                if ((byteValue & 1) == 1)
+                {
+                    return bitIndex;
+                }
+                byteValue >>= 1;
+                bitIndex++;
+            }
+        }
         return -1;
     }
 
+
     public bool GetBit(long bitIndex)
     {
-        if (bitIndex >= Length)
+        if (bitIndex >= BitLength)
             throw new ArgumentOutOfRangeException(nameof(bitIndex), "Bit index is out of range.");
 
-        var byteIndex = bitIndex / 8;
+        var byteIndex = (BufferLength - 1) - bitIndex / 8;
         var bitOffset = (int)bitIndex % 8;
 
         var mask = (byte)(1 << bitOffset);
@@ -275,7 +287,7 @@ public readonly struct BitVector
         unchecked
         {
             var hash = 17;
-            hash = hash * 23 + Length.GetHashCode();
+            hash = hash * 23 + BitLength.GetHashCode();
             for (var i = 0; i < BufferLength; i++) hash = hash * 23 + _bitBuffer[i].GetHashCode();
             return hash;
         }
@@ -287,9 +299,20 @@ public readonly struct BitVector
         return false;
     }
 
-    public bool Equals(BitVector other)
+    public bool Equals(BitVector other, EqualityMode mode)
     {
-        if (Length != other.Length)
+        return mode switch
+        {
+            EqualityMode.CompareLengthAndData => EqualsLengthAndData(other),
+            EqualityMode.CompareDataOnly => EqualsDataOnly(other),
+            _ => throw new ArgumentException("Invalid equality mode.", nameof(mode))
+        };
+    }
+
+    private bool EqualsLengthAndData(BitVector other)
+    {
+        // Compare both length and data
+        if (BitLength != other.BitLength)
             return false;
 
         var byteCount = BufferLength;
@@ -298,6 +321,38 @@ public readonly struct BitVector
                 return false;
 
         return true;
+    }
+
+    private bool EqualsDataOnly(BitVector other)
+    {
+        // Compare data only
+        var byteCount = Math.Min(BufferLength, other.BufferLength);
+        for (var i = 0; i < byteCount; i++)
+            if (_bitBuffer[i] != other._bitBuffer[i])
+                return false;
+
+        // If one BitVector is longer, check if the remaining bits are all zeros
+        if (BufferLength > other.BufferLength)
+        {
+            for (var i = other.BufferLength; i < BufferLength; i++)
+                if (_bitBuffer[i] != 0)
+                    return false;
+        }
+        else if (other.BufferLength > BufferLength)
+        {
+            for (var i = BufferLength; i < other.BufferLength; i++)
+                if (other._bitBuffer[i] != 0)
+                    return false;
+        }
+
+        return true;
+    }
+
+ 
+    public bool Equals(BitVector other)
+    {
+        // Default to comparing both length and data
+        return EqualsLengthAndData(other);
     }
 
     public static bool operator ==(BitVector left, BitVector right)
@@ -313,7 +368,7 @@ public readonly struct BitVector
 
     public override string ToString()
     {
-        return ToBinaryString();
+       return string.Join("", _bitBuffer.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
     }
 
     public BitVector Not()
@@ -322,7 +377,7 @@ public readonly struct BitVector
 
         for (var i = 0; i < BufferLength; i++) newBitBuffer[i] = (byte)~_bitBuffer[i];
 
-        return new BitVector(newBitBuffer, Length);
+        return new BitVector(newBitBuffer, BitLength);
     }
 
 
