@@ -27,7 +27,7 @@ string binaryString = bits.ToBinaryString(); // Convert to binary string
 
 While the built-in BitArray class in .NET offers basic bit manipulation capabilities, the BitVector struct stands out with its memory efficiency, performance optimization, and user-friendly API. Whether you're working on cryptography, compression algorithms, or any application requiring precise bit control, the BitVector struct is your go-to solution.
 
-** But if you don't need an immutable design or you have a huge dataset (which is better to be allocated on Heap), it is better to use BitArray.**
+#### But if you don't need an immutable design or you have a huge dataset (which is better to be allocated on Heap), it is better to use BitArray. 
 
 ## Installation
 
