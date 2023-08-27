@@ -506,6 +506,20 @@ public readonly struct BitVector : IEnumerable<bool>
     }
 
     /// <summary>
+    /// Determines whether the current BitVector is equal to another BitVector.
+    /// </summary>
+    /// <param name="obj">The BitVector to compare with the current BitVector.</param>
+    /// <returns><c>true</c> if the specified BitVector is equal to the current BitVector; otherwise, <c>false</c>.</returns>
+    public override bool Equals(object? obj)
+    {
+        if (obj is BitVector other)
+        {
+            return Equals(other); // Call the previously defined Equals(BitVector) method
+        }
+        return false;
+    }
+
+    /// <summary>
     ///     Determines whether two BitVector instances are equal.
     /// </summary>
     /// <param name="left">The first BitVector to compare.</param>
@@ -569,7 +583,7 @@ public readonly struct BitVector : IEnumerable<bool>
     /// <param name="value">The BitVector to shift.</param>
     /// <param name="shiftAmount">The number of positions to shift the BitVector to the right.</param>
     /// <returns>A new BitVector representing the bitwise right shift of the original BitVector.</returns>
-    public static BitVector operator >> (BitVector value, int shiftAmount)
+    public static BitVector operator >>(BitVector value, int shiftAmount)
     {
         return value.RightShift(shiftAmount);
     }
