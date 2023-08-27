@@ -14,10 +14,10 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore cicd.sln
+      run: dotnet restore BitVector.sln.sln
     - name: Build
-      run: dotnet build cicd.sln -c Release --no-restore
+      run: dotnet build BitVector.sln.sln -c Release --no-restore
     - name: Test
-      run: dotnet test cicd.sln -c Release --no-build --verbosity normal
+      run: dotnet test BitVector.sln.sln -c Release --no-build --verbosity normal
