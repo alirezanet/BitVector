@@ -56,7 +56,36 @@ public readonly struct BitVector : IEnumerable<bool>
             _bitBuffer[byteIndex] |= mask;
         }
     }
-    
+
+    public BitVector(string binaryString)
+    {
+        if (string.IsNullOrEmpty(binaryString))
+            throw new ArgumentException("Binary string cannot be null or empty.", nameof(binaryString));
+
+        var length = binaryString.Length;
+        var bufferLength = (length + 7) / 8; // Calculate buffer length more efficiently
+        _bitBuffer = new byte[bufferLength];
+        BitLength = length;
+        BufferLength = bufferLength;
+
+        var byteIndex = bufferLength - 1;
+        var bitOffset = 0;
+
+        for (var i = length - 1; i >= 0; i--)
+        {
+            if (binaryString[i] == '1')
+                _bitBuffer[byteIndex] |= (byte)(1 << bitOffset);
+            else if (binaryString[i] != '0')
+                throw new ArgumentException("Binary string contains invalid characters.", nameof(binaryString));
+
+            if (++bitOffset != 8) continue;
+            
+            bitOffset = 0;
+            byteIndex--;
+        }
+    }
+
+
     public BitVectorEnumerator GetEnumerator()
     {
         return new BitVectorEnumerator(this);
@@ -87,7 +116,7 @@ public readonly struct BitVector : IEnumerable<bool>
         _bitBuffer.CopyTo(buffer, index);
     }
 
-    
+
     public BitVector Set(bool value, params long[] bitIndexes)
     {
         var newBitBuffer = new byte[BufferLength];
@@ -241,19 +270,17 @@ public readonly struct BitVector : IEnumerable<bool>
         for (var i = 0; i < BufferLength; i++)
         {
             if (_bitBuffer[i] == 0) continue;
-            
+
             var bitIndex = i * 8;
             var byteValue = _bitBuffer[i];
             while (byteValue > 0)
             {
-                if ((byteValue & 1) == 1)
-                {
-                    return bitIndex;
-                }
+                if ((byteValue & 1) == 1) return bitIndex;
                 byteValue >>= 1;
                 bitIndex++;
             }
         }
+
         return -1;
     }
 
@@ -263,7 +290,7 @@ public readonly struct BitVector : IEnumerable<bool>
         if (bitIndex >= BitLength)
             throw new ArgumentOutOfRangeException(nameof(bitIndex), "Bit index is out of range.");
 
-        var byteIndex = (BufferLength - 1) - bitIndex / 8;
+        var byteIndex = BufferLength - 1 - bitIndex / 8;
         var bitOffset = (int)bitIndex % 8;
 
         var mask = (byte)(1 << bitOffset);
@@ -348,7 +375,7 @@ public readonly struct BitVector : IEnumerable<bool>
         return true;
     }
 
- 
+
     public bool Equals(BitVector other)
     {
         // Default to comparing both length and data
@@ -368,7 +395,7 @@ public readonly struct BitVector : IEnumerable<bool>
 
     public override string ToString()
     {
-       return string.Join("", _bitBuffer.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
+        return string.Join("", _bitBuffer.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
     }
 
     public BitVector Not()
