@@ -2,7 +2,7 @@
 ![GitHub](https://img.shields.io/github/license/alirezanet/BitVector) ![Nuget](https://img.shields.io/nuget/dt/BitVector?color=%239100ff) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/BitVector?label=latest)
 [![NuGet version (BitVector)](https://img.shields.io/nuget/v/BitVector.svg?style=flat-square)](https://www.nuget.org/packages/BitVector/)
 
-# BitVector (UNDER DEVELOPMENT)
+# BitVector (UNDER DEVELOPMENT @Optimization)
 
 The BitVector struct provides a lightweight, memory-efficient, and high-performance solution for working with individual bits within your .NET applications. With its versatile API and optimized bitwise operations, the BitVector struct is the ideal choice for scenarios where memory conservation and efficient bit manipulation are essential.
 
